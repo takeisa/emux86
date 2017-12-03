@@ -85,6 +85,11 @@ uint32_t get_code32(cpu_t *cpu, int index) {
 	return value;
 }
 
+int32_t get_sign_code32(cpu_t *cpu, int index) {
+	return (int32_t)get_code32(cpu, index);
+}
+
+
 typedef void instruction_func_t(cpu_t *);
 
 void inst_mov_r32_imm32(cpu_t *cpu) {
@@ -101,6 +106,12 @@ void inst_short_jmp(cpu_t *cpu) {
 	cpu->eip += 2 + rel_addr;
 }
 
+void inst_near_jmp(cpu_t *cpu) {
+	printf("near_jmp\n");
+	int32_t rel_addr = get_sign_code32(cpu, 1);
+	cpu->eip += (5 + rel_addr);
+}
+
 instruction_func_t *instructions[0x100];
 
 void init_instructions() {
@@ -108,6 +119,8 @@ void init_instructions() {
 	for (int i = 0; i < 8; i++) {
 		instructions[0xb8 + i] = inst_mov_r32_imm32;
 	}
+
+	instructions[0xe9] = inst_near_jmp;
 	instructions[0xeb] = inst_short_jmp;
 }
 
@@ -167,7 +180,7 @@ int main(int argc, char *argv[]) {
 
 	init_instructions();
 
-	cpu_t *cpu = create_cpu(MEMORY_SIZE, 0x0000, 0x7c00);
+	cpu_t *cpu = create_cpu(MEMORY_SIZE, 0x7c00, 0x7c00);
 
 	FILE *fp = fopen(argv[0], "rb");
 	if (fp == NULL) {
@@ -175,7 +188,7 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	fread(cpu->memory, sizeof(uint8_t), 0x200, fp);
+	fread(cpu->memory + 0x7c00, sizeof(uint8_t), 0x200, fp);
 	fclose(fp);
 
 	run(cpu);
