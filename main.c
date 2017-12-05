@@ -6,68 +6,10 @@
 #include <string.h>
 #include <unistd.h>
 
-void exit_program(const char *format, ...) {
-	va_list ap;
-	va_start(ap, format);
-	vfprintf(stdout, format, ap);
-	va_end(ap);
-	exit(EXIT_FAILURE);
-}
+#include "cpu.h"
+#include "util.h"
 
 #define MEMORY_SIZE 0x10000
-
-#define REGISTER_COUNT 8
-
-const char *register_names[] = {
-	"EAX", "ECX", "EDX", "EBX",
-	"ESP", "EBP", "ESI", "EDI",
-	NULL
-};
-
-typedef uint32_t reg_t;
-
-typedef struct {
-	reg_t eax;
-	reg_t ecx;
-	reg_t edx;
-	reg_t ebx;
-	reg_t esp;
-	reg_t ebp;
-	reg_t esi;
-	reg_t edi;
-} registers_t;
-
-typedef struct {
-	union {
-		reg_t reg_array[REGISTER_COUNT];
-		registers_t regs;
-	};
-	reg_t eflags;
-	reg_t eip;
-	uint8_t *memory;
-} cpu_t;
-
-cpu_t *create_cpu(size_t memory_size, reg_t eip, reg_t esp) {
-	cpu_t *emu = malloc(sizeof(cpu_t));
-	if (!emu) {
-		exit_program("create_cpu: cpu malloc error");
-	}
-
-	emu->memory = calloc(sizeof(uint8_t), memory_size);
-	if (!emu->memory) {
-		exit_program("create_cpu: cpu memory malloc error");
-	}
-
-	emu->eip = eip;
-	emu->regs.esp = esp;
-
-	return emu;
-}
-
-void destroy_cpu(cpu_t *cpu) {
-	free(cpu->memory);
-	free(cpu);
-}
 
 uint8_t get_code8(cpu_t *cpu, int index) {
 	return cpu->memory[cpu->eip + index];
