@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "util.h"
+#include "utils.h"
 
 void exit_program(const char *format, ...) {
 	va_list ap;

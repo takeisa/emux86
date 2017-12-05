@@ -1,5 +1,5 @@
 PROGRAM=emux86
-OBJECTS=main.o util.o cpu.o
+OBJECTS=main.o utils.o cpu.o instructions.o
 CFLAGS=-g -O0 -Wall
 LDLIBS=
 CC=gcc

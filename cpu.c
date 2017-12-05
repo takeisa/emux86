@@ -1,5 +1,5 @@
 #include "cpu.h"
-#include "util.h"
+#include "utils.h"
 
 const char *register_names[] = {
 	"EAX", "ECX", "EDX", "EBX",
