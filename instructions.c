@@ -46,6 +46,32 @@ void inst_near_jmp(cpu_t *cpu) {
 	cpu->eip += (5 + rel_addr);
 }
 
+void parse_modrm_sib_disp(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	memset(msd, 0, sizeof(modrm_sib_disp_t));
+
+	uint8_t code = get_code8(cpu, 0);
+	msd->mod = (code & 0xC0) >> 6;
+	msd->reg = (code & 0x38) >> 3;
+	msd->rm = code & 0x07;
+
+	cpu->eip++;
+
+	// SIB
+	if (msd->mod != 3 && msd->rm == 4) {
+		msd->sib = get_code8(cpu, 0);
+		cpu->eip++;
+	}
+
+	// disp8 or disp32
+	if (msd->mod == 1) {
+		msd->disp8 = get_sign_code8(cpu, 0);
+		cpu->eip++;
+	} else if ((msd->mod == 0 && msd->rm == 4) || msd->mod == 2) {
+		msd->disp32 = get_sign_code32(cpu, 0);
+		cpu->eip += 4;
+	}
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 	for (int i = 0; i < 8; i++) {
