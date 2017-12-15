@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "instructions.h"
+#include "utils.h"
 
 instruction_func_t *instructions[0x100];
 
@@ -72,12 +73,34 @@ void parse_modrm_sib_disp(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	}
 }
 
+void set_reg32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
+	cpu->reg_array[msd->rm] = value;
+}
+
+void set_rm32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
+	if (msd->mod == 3) {
+		set_reg32(cpu, msd, value);
+	} else {
+		exit_program("set_rm32: not implmented");
+	}
+}
+
+void inst_mov_rm32_imm32(cpu_t *cpu) {
+	cpu->eip++;
+	modrm_sib_disp_t msd;
+	parse_modrm_sib_disp(cpu, &msd);
+	uint32_t value = get_code32(cpu, 0);
+	cpu->eip += 4;
+	set_rm32(cpu, &msd, value);
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 	for (int i = 0; i < 8; i++) {
 		instructions[0xb8 + i] = inst_mov_r32_imm32;
 	}
 
+	instructions[0xc7] = inst_mov_rm32_imm32;
 	instructions[0xe9] = inst_near_jmp;
 	instructions[0xeb] = inst_short_jmp;
 }

@@ -3,4 +3,6 @@ BITS 32
 
 start:
     mov     eax,41
+    ;; mov ecx, 0x01020304
+    db      0xC7,0xC1,0x04,0x03,0x02,0x01
     jmp     0
