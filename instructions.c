@@ -108,8 +108,13 @@ uint32_t calc_addr(cpu_t *cpu, modrm_sib_disp_t *msd) {
 		if (msd->rm == 4) {
 			exit_program("calc_addr: not implemented Mod=01 R/M=100");
 		}
-		uint32_t addr = get_reg32(cpu, msd) + msd->disp8;
-		return addr;
+		return get_reg32(cpu, msd) + msd->disp8;
+	case 2:
+		// [-][-]
+		if (msd->rm == 4) {
+			exit_program("calc_addr: not implemented Mod=02 R/M=100");
+		}
+		return get_reg32(cpu, msd) + msd->disp32;
 	default:
 		exit_program("calc_addr: not implemented");
 	}
