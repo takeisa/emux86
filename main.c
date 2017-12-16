@@ -80,7 +80,16 @@ int main(int argc, char *argv[]) {
 	fclose(fp);
 
 	run(cpu);
+	printf("== Registers ==\n");
 	print_registers(cpu);
+
+	// for debug
+	printf("== Memory==\n");
+	uint32_t addr = 0x1000;
+	for (int i = 0; i < 8; i++) {
+		printf("%04X %02X\n", addr, cpu->memory[addr]);
+		addr++;
+	}
 
 	destroy_cpu(cpu);
 	return 0;

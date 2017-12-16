@@ -77,11 +77,42 @@ void set_reg32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
 	cpu->reg_array[msd->rm] = value;
 }
 
+uint32_t get_reg32(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	return cpu->reg_array[msd->rm];
+}
+
+void set_mem8(cpu_t *cpu, uint32_t addr, uint8_t value) {
+	cpu->memory[addr] = value;
+}
+
+void set_mem32(cpu_t *cpu, uint32_t addr, uint32_t value) {
+	for (int i = 0; i < 4; i++) {
+		set_mem8(cpu, addr + i, value >> (i * 8));
+	}
+}
+
+uint32_t calc_addr(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	if (msd->mod == 0) {
+		switch (msd->rm) {
+		case 4: // [-][-]
+			exit_program("calc_addr: not implemented Mod=00 R/M=100");
+			break;
+		case 5: // disp32
+			break;
+		default:
+			return get_reg32(cpu, msd);
+		}
+	}
+	exit_program("calc_addr: not implemented");
+	return 0;
+}
+
 void set_rm32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
 	if (msd->mod == 3) {
 		set_reg32(cpu, msd, value);
 	} else {
-		exit_program("set_rm32: not implmented");
+		uint32_t addr = calc_addr(cpu, msd);
+		set_mem32(cpu, addr, value);
 	}
 }
 
