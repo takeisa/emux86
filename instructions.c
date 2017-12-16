@@ -92,7 +92,8 @@ void set_mem32(cpu_t *cpu, uint32_t addr, uint32_t value) {
 }
 
 uint32_t calc_addr(cpu_t *cpu, modrm_sib_disp_t *msd) {
-	if (msd->mod == 0) {
+	switch (msd->mod) {
+	case 0:
 		switch (msd->rm) {
 		case 4: // [-][-]
 			exit_program("calc_addr: not implemented Mod=00 R/M=100");
@@ -102,8 +103,17 @@ uint32_t calc_addr(cpu_t *cpu, modrm_sib_disp_t *msd) {
 		default:
 			return get_reg32(cpu, msd);
 		}
+	case 1:
+		// [-][-]
+		if (msd->rm == 4) {
+			exit_program("calc_addr: not implemented Mod=01 R/M=100");
+		}
+		uint32_t addr = get_reg32(cpu, msd) + msd->disp8;
+		return addr;
+	default:
+		exit_program("calc_addr: not implemented");
 	}
-	exit_program("calc_addr: not implemented");
+	exit_program("calc_addr: BUG?");
 	return 0;
 }
 
