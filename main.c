@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 	// for debug
 	printf("== Memory==\n");
 	uint32_t addr = 0x1000;
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 4; i++) {
 		printf("%04X", addr);
 		for (int j = 0; j < 8; j++) {
 			printf(" %02X", cpu->memory[addr]);
