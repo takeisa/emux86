@@ -67,7 +67,7 @@ void parse_modrm_sib_disp(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	if (msd->mod == 1) {
 		msd->disp8 = get_sign_code8(cpu, 0);
 		cpu->eip++;
-	} else if ((msd->mod == 0 && msd->rm == 4) || msd->mod == 2) {
+	} else if ((msd->mod == 0 && msd->rm == 5) || msd->mod == 2) {
 		msd->disp32 = get_sign_code32(cpu, 0);
 		cpu->eip += 4;
 	}
@@ -98,7 +98,7 @@ uint32_t calc_addr(cpu_t *cpu, modrm_sib_disp_t *msd) {
 			exit_program("calc_addr: not implemented Mod=00 R/M=100");
 			break;
 		case 5: // disp32
-			break;
+			return msd->disp32;
 		default:
 			return get_reg32(cpu, msd);
 		}
