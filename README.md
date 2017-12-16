@@ -1,4 +1,6 @@
-Example of compiling and execution
+# X86 Emulator in C 
+
+## Example of compiling and execution
 ```
 $ nasm -g -o hello_world.bin hello_world.asm
 $ ndisasm -b 32 hello_world.bin
