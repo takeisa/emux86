@@ -86,9 +86,13 @@ int main(int argc, char *argv[]) {
 	// for debug
 	printf("== Memory==\n");
 	uint32_t addr = 0x1000;
-	for (int i = 0; i < 8; i++) {
-		printf("%04X %02X\n", addr, cpu->memory[addr]);
-		addr++;
+	for (int i = 0; i < 2; i++) {
+		printf("%04X", addr);
+		for (int j = 0; j < 8; j++) {
+			printf(" %02X", cpu->memory[addr]);
+			addr++;
+		}
+		printf("\n");
 	}
 
 	destroy_cpu(cpu);
