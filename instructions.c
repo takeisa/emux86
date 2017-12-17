@@ -210,6 +210,32 @@ void inst_code_83(cpu_t *cpu) {
 	}
 }
 
+void code_ff_inc_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	uint32_t rm32 = get_rm32(cpu, msd);
+	set_rm32(cpu, msd, ++rm32);
+}
+
+void code_ff_dec_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	uint32_t rm32 = get_rm32(cpu, msd);
+	set_rm32(cpu, msd, --rm32);
+}
+
+void inst_code_ff(cpu_t *cpu) {
+	cpu->eip++;
+	modrm_sib_disp_t msd;
+	parse_modrm_sib_disp(cpu, &msd);
+	switch (msd.reg) {
+	case 0:
+		code_ff_inc_rm32(cpu, &msd);
+		break;
+	case 1:
+		code_ff_dec_rm32(cpu, &msd);
+		break;
+	default:
+		exit_program("inst_code_ff: not implemented REG=%X", msd.reg);
+	}
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 
@@ -227,4 +253,6 @@ void init_instructions() {
 	instructions[0xc7] = inst_mov_rm32_imm32;
 	instructions[0xe9] = inst_near_jmp;
 	instructions[0xeb] = inst_short_jmp;
+
+	instructions[0xff] = inst_code_ff;
 }
