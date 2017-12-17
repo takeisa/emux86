@@ -14,7 +14,8 @@ $ ndisasm -b 32 hello_world.bin
 00000028  BB00200000        mov ebx,0x2000
 0000002D  C78310F0FFFF0807  mov dword [ebx-0xff0],0x5060708
          -0605
-00000037  E9C483FFFF        jmp dword 0xffff8400
+00000037  894814            mov [eax+0x14],ecx
+0000003A  E9C183FFFF        jmp dword 0xffff8400
 $ make
 gcc -c main.c -g -O0 -Wall -o main.o
 gcc -c utils.c -g -O0 -Wall -o utils.o
@@ -38,6 +39,6 @@ EIP=00000000
 == Memory==
 1000 05 04 03 02 06 05 04 03
 1008 07 06 05 04 00 00 00 00
-1010 08 07 06 05 00 00 00 00
+1010 08 07 06 05 04 03 02 01
 1018 00 00 00 00 00 00 00 00
 ```

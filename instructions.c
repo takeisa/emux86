@@ -131,6 +131,10 @@ void set_rm32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
 	}
 }
 
+uint32_t get_r32(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	return cpu->reg_array[msd->reg];
+}
+
 void inst_mov_rm32_imm32(cpu_t *cpu) {
 	cpu->eip++;
 	modrm_sib_disp_t msd;
@@ -140,8 +144,19 @@ void inst_mov_rm32_imm32(cpu_t *cpu) {
 	set_rm32(cpu, &msd, value);
 }
 
+void inst_mov_rm32_r32(cpu_t *cpu) {
+	cpu->eip++;
+	modrm_sib_disp_t msd;
+	parse_modrm_sib_disp(cpu, &msd);
+	uint32_t value = get_r32(cpu, &msd);
+	set_rm32(cpu, &msd, value);
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
+
+	instructions[0x89] = inst_mov_rm32_r32;
+
 	for (int i = 0; i < 8; i++) {
 		instructions[0xb8 + i] = inst_mov_r32_imm32;
 	}

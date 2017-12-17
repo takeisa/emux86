@@ -13,4 +13,5 @@ start:
     mov     dword [eax+8], 0x04050607
     mov     ebx, 0x00002000
     mov     dword [ebx-0x0FF0], 0x05060708
+    mov     dword [eax+0x14], ecx
     jmp     0
