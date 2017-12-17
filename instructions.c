@@ -82,6 +82,19 @@ void set_mem8(cpu_t *cpu, uint32_t addr, uint8_t value) {
 	cpu->memory[addr] = value;
 }
 
+uint8_t get_mem8(cpu_t *cpu, uint32_t addr) {
+	return cpu->memory[addr];
+}
+
+uint32_t get_mem32(cpu_t *cpu, uint32_t addr) {
+	uint32_t value = 0;
+	for (int i = 0; i < 4; i++) {
+		value |= get_mem8(cpu, addr) << (i * 8);
+		addr++;
+	}
+	return value;
+}
+
 void set_mem32(cpu_t *cpu, uint32_t addr, uint32_t value) {
 	for (int i = 0; i < 4; i++) {
 		set_mem8(cpu, addr + i, value >> (i * 8));
@@ -119,6 +132,15 @@ uint32_t calc_addr(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	return 0;
 }
 
+uint32_t get_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	if (msd->mod == 3) {
+		return get_reg32(cpu, msd);
+	} else {
+		uint32_t addr = calc_addr(cpu, msd);
+		return get_mem32(cpu, addr);
+	}
+}
+
 void set_rm32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
 	if (msd->mod == 3) {
 		set_reg32(cpu, msd, value);
@@ -130,6 +152,10 @@ void set_rm32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
 
 uint32_t get_r32(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	return cpu->reg_array[msd->reg];
+}
+
+void set_r32(cpu_t *cpu, modrm_sib_disp_t *msd, uint32_t value) {
+	cpu->reg_array[msd->reg] = value;
 }
 
 void inst_mov_rm32_imm32(cpu_t *cpu) {
@@ -149,10 +175,19 @@ void inst_mov_rm32_r32(cpu_t *cpu) {
 	set_rm32(cpu, &msd, value);
 }
 
+void inst_mov_r32_rm32(cpu_t *cpu) {
+	cpu->eip++;
+	modrm_sib_disp_t msd;
+	parse_modrm_sib_disp(cpu, &msd);
+	uint32_t value = get_rm32(cpu, &msd);
+	set_r32(cpu, &msd, value);
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 
 	instructions[0x89] = inst_mov_rm32_r32;
+	instructions[0x8B] = inst_mov_r32_rm32;
 
 	for (int i = 0; i < 8; i++) {
 		instructions[0xb8 + i] = inst_mov_r32_imm32;

@@ -14,4 +14,5 @@ start:
     mov     ebx, 0x00002000
     mov     dword [ebx-0x0FF0], 0x05060708
     mov     dword [eax+0x14], ecx
+    mov     edx, [ebx-0x1000]
     jmp     0

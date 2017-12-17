@@ -15,7 +15,8 @@ $ ndisasm -b 32 hello_world.bin
 0000002D  C78310F0FFFF0807  mov dword [ebx-0xff0],0x5060708
          -0605
 00000037  894814            mov [eax+0x14],ecx
-0000003A  E9C183FFFF        jmp dword 0xffff8400
+0000003A  8B9300F0FFFF      mov edx,[ebx-0x1000]
+00000040  E9BB83FFFF        jmp dword 0xffff8400
 $ make
 gcc -c main.c -g -O0 -Wall -o main.o
 gcc -c utils.c -g -O0 -Wall -o utils.o
@@ -23,13 +24,10 @@ gcc -c cpu.c -g -O0 -Wall -o cpu.o
 gcc -c instructions.c -g -O0 -Wall -o instructions.o
 gcc main.o utils.o cpu.o instructions.o -o emux86
 $ ./emux86 hello_world.bin
-mov_r_32_imm32
-near_jmp
-End of program
 == Registers ==
 EAX=00001000
 ECX=01020304
-EDX=00000000
+EDX=02030405
 EBX=00002000
 ESP=00007C00
 EBP=00000000
