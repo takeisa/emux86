@@ -28,7 +28,6 @@ int32_t get_sign_code32(cpu_t *cpu, int index) {
 
 
 void inst_mov_r32_imm32(cpu_t *cpu) {
-	printf("mov_r_32_imm32\n");
 	uint8_t reg = get_code8(cpu, 0) - 0xb8;
 	uint32_t value = get_code32(cpu, 1);
 	cpu->reg_array[reg] = value;
@@ -36,13 +35,11 @@ void inst_mov_r32_imm32(cpu_t *cpu) {
 }
 
 void inst_short_jmp(cpu_t *cpu) {
-	printf("short_jmp\n");
 	int8_t rel_addr = get_sign_code8(cpu, 1);
 	cpu->eip += 2 + rel_addr;
 }
 
 void inst_near_jmp(cpu_t *cpu) {
-	printf("near_jmp\n");
 	int32_t rel_addr = get_sign_code32(cpu, 1);
 	cpu->eip += (5 + rel_addr);
 }

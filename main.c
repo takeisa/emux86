@@ -20,8 +20,7 @@ void run(cpu_t *cpu) {
 
 		uint8_t code = get_code8(cpu, 0);
 		if (instructions[code] == NULL) {
-			printf("Not implemented: eip=%08X code=%02X\n", cpu->eip, code);
-			break;
+			exit_program("Not implemented: eip=%08X code=%02X\n", cpu->eip, code);
 		}
 
 		instructions[code](cpu);
