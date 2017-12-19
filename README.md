@@ -40,3 +40,37 @@ EIP=00000000
 1010 08 07 06 05 04 03 02 01
 1018 00 00 00 00 00 00 00 00
 ```
+## CALL and RET Example
+```
+$ nasm -g -o test_call_ret.bin test_call_ret.asm
+$ ndisasm -b 32 test_call_ret.bin
+00000000  B804030201        mov eax,0x1020304
+00000005  BB05040302        mov ebx,0x2030405
+0000000A  E805000000        call dword 0x14
+0000000F  E9EC83FFFF        jmp dword 0xffff8400
+00000014  89C1              mov ecx,eax
+00000016  01D9              add ecx,ebx
+00000018  C3                ret
+$ ./emux86 test_call_ret.bin
+End of program
+== Registers ==
+EAX=01020304
+ECX=03050709
+EDX=00000000
+EBX=02030405
+ESP=00007C00
+EBP=00000000
+ESI=00000000
+EDI=00000000
+EIP=00000000
+== Memory==
+1000 00 00 00 00 00 00 00 00
+1008 00 00 00 00 00 00 00 00
+1010 00 00 00 00 00 00 00 00
+1018 00 00 00 00 00 00 00 00
+== Memory(Stack)==
+7BE0 00 00 00 00 00 00 00 00
+7BE8 00 00 00 00 00 00 00 00
+7BF0 00 00 00 00 00 00 00 00
+7BF8 00 00 00 00 0F 7C 00 00
+```
