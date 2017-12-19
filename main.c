@@ -93,6 +93,16 @@ int main(int argc, char *argv[]) {
 		}
 		printf("\n");
 	}
+	printf("== Memory(Stack)==\n");
+	addr = 0x7c00 - 0x20;
+	for (int i = 0; i < 4; i++) {
+		printf("%04X", addr);
+		for (int j = 0; j < 8; j++) {
+			printf(" %02X", cpu->memory[addr]);
+			addr++;
+		}
+		printf("\n");
+	}
 
 	destroy_cpu(cpu);
 	return 0;
