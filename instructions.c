@@ -236,10 +236,31 @@ void inst_code_ff(cpu_t *cpu) {
 	}
 }
 
+void inst_push_r32(cpu_t *cpu) {
+	uint8_t reg = get_code8(cpu, 0) - 0x50;
+	uint32_t value = cpu->reg_array[reg];
+	cpu->regs.esp -= 4;
+	set_mem32(cpu, cpu->regs.esp, value);
+	cpu->eip++;
+}
+
+void inst_pop_r32(cpu_t *cpu) {
+	uint32_t value = get_mem32(cpu, cpu->regs.esp);
+	uint8_t reg = get_code8(cpu, 0) - 0x58;
+	cpu->reg_array[reg] = value;
+	cpu->regs.esp += 4;
+	cpu->eip++;
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 
 	instructions[0x01] = inst_add_rm32_r32;
+
+	for (int i = 0; i < 8; i++) {
+		instructions[0x50 + i] = inst_push_r32;
+		instructions[0x58 + i] = inst_pop_r32;
+	}
 
 	instructions[0x83] = inst_code_83;
 
