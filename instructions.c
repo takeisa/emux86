@@ -260,6 +260,18 @@ void inst_pop_r32(cpu_t *cpu) {
 	cpu->eip++;
 }
 
+void inst_call_rel32(cpu_t *cpu) {
+	uint32_t ret_addr = cpu->eip + 5;
+	push(cpu, ret_addr);
+	uint32_t jump_rel_addr = get_sign_code32(cpu, 1);
+	// The relative address is based on the address of the next opcode
+	cpu->eip += 5 + jump_rel_addr;
+}
+
+void inst_ret(cpu_t *cpu) {
+	cpu->eip = pop(cpu);
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 
@@ -280,6 +292,8 @@ void init_instructions() {
 	}
 
 	instructions[0xc7] = inst_mov_rm32_imm32;
+	instructions[0xc3] = inst_ret;
+	instructions[0xe8] = inst_call_rel32;
 	instructions[0xe9] = inst_near_jmp;
 	instructions[0xeb] = inst_short_jmp;
 
