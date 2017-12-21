@@ -192,6 +192,13 @@ void inst_add_rm32_r32(cpu_t *cpu) {
 	set_rm32(cpu, &msd, rm32 + r32);
 }
 
+void code_83_add_rm32_imm8(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	uint32_t rm32 = get_rm32(cpu, msd);
+	uint8_t imm8 = get_sign_code8(cpu, 0);
+	cpu->eip++;
+	set_rm32(cpu, msd, rm32 + imm8);
+}
+
 void code_83_sub_rm32_imm8(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	uint32_t rm32 = get_rm32(cpu, msd);
 	uint8_t imm8 = get_sign_code8(cpu, 0);
@@ -203,10 +210,12 @@ void inst_code_83(cpu_t *cpu) {
 	cpu->eip++;
 	modrm_sib_disp_t msd;
 	parse_modrm_sib_disp(cpu, &msd);
-	if (msd.reg == 5) {
+	if (msd.reg == 0) {
+		code_83_add_rm32_imm8(cpu, &msd);
+	} else if (msd.reg == 5) {
 		code_83_sub_rm32_imm8(cpu, &msd);
 	} else {
-		exit_program("inst_code_82: not implemented eip=%8X", cpu->eip);
+		exit_program("inst_code_83: not implemented eip=%8X", cpu->eip);
 	}
 }
 
