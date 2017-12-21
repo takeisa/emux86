@@ -1,4 +1,6 @@
-How to compile and link
+# How to compile and link on Debian Jessie X64
+
+It must be a binary of 32 bit version.
 
 $ LANG=C gcc -O0 -m32 -nostdlib -fno-pie -fno-asynchronous-unwind-tables -g -fno-stack-protector -c test_func.c
 $ nasm -f elf crt0.asm
