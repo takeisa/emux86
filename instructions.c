@@ -272,6 +272,12 @@ void inst_ret(cpu_t *cpu) {
 	cpu->eip = pop(cpu);
 }
 
+void inst_leave(cpu_t *cpu) {
+	cpu->regs.esp = cpu->regs.ebp;
+	cpu->regs.ebp = pop(cpu);
+	cpu->eip++;
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 
@@ -293,6 +299,7 @@ void init_instructions() {
 
 	instructions[0xc7] = inst_mov_rm32_imm32;
 	instructions[0xc3] = inst_ret;
+	instructions[0xc9] = inst_leave;
 	instructions[0xe8] = inst_call_rel32;
 	instructions[0xe9] = inst_near_jmp;
 	instructions[0xeb] = inst_short_jmp;
