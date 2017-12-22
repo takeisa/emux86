@@ -269,6 +269,13 @@ void inst_pop_r32(cpu_t *cpu) {
 	cpu->eip++;
 }
 
+void inst_push_imm8(cpu_t *cpu) {
+	cpu->eip++;
+	uint8_t value = get_code8(cpu, 0);
+	push(cpu, value);
+	cpu->eip++;
+}
+
 void inst_call_rel32(cpu_t *cpu) {
 	uint32_t ret_addr = cpu->eip + 5;
 	push(cpu, ret_addr);
@@ -296,6 +303,8 @@ void init_instructions() {
 		instructions[0x50 + i] = inst_push_r32;
 		instructions[0x58 + i] = inst_pop_r32;
 	}
+
+	instructions[0x6a] = inst_push_imm8;
 
 	instructions[0x83] = inst_code_83;
 
