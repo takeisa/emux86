@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "instructions.h"
 #include "utils.h"
@@ -33,6 +34,10 @@ void set_eflags(cpu_t *cpu, uint32_t flag, int value) {
 	} else {
 		cpu->eflags &= ~flag;
 	}
+}
+
+int get_eflags(cpu_t *cpu, uint32_t flag) {
+	return cpu->eflags & flag;
 }
 
 void update_eflags_sub(cpu_t *cpu, uint32_t a, uint32_t b, uint64_t result) {
@@ -347,6 +352,48 @@ void inst_cmp_r32_rm32(cpu_t *cpu) {
 	update_eflags_cmp(cpu, r32, rm32);
 }
 
+void jump_cc_rel8(cpu_t *cpu, uint32_t flag, bool logic) {
+	int8_t rel_addr;
+	uint8_t flag_value = get_eflags(cpu, flag);
+	if (!logic && flag_value) {
+		flag_value = 0;
+	}
+	rel_addr = flag_value ? get_sign_code8(cpu, 1) : 0;
+	cpu->eip += 2 + rel_addr;
+}
+
+void inst_jo_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_OF, true);
+}
+
+void inst_jno_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_OF, false);
+}
+
+void inst_jc_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_CF, true);
+}
+
+void inst_jnc_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_CF, false);
+}
+
+void inst_jz_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_ZF, true);
+}
+
+void inst_jnz_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_ZF, false);
+}
+
+void inst_js_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_SF, true);
+}
+
+void inst_jns_rel8(cpu_t *cpu) {
+	jump_cc_rel8(cpu, EFLAGS_SF, false);
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 
@@ -361,6 +408,15 @@ void init_instructions() {
 	}
 
 	instructions[0x6a] = inst_push_imm8;
+
+	instructions[0x70] = inst_jo_rel8;
+	instructions[0x71] = inst_jno_rel8;
+	instructions[0x72] = inst_jc_rel8;
+	instructions[0x73] = inst_jnc_rel8;
+	instructions[0x74] = inst_jz_rel8;
+	instructions[0x75] = inst_jnz_rel8;
+	instructions[0x78] = inst_js_rel8;
+	instructions[0x79] = inst_jns_rel8;
 
 	instructions[0x83] = inst_code_83;
 
