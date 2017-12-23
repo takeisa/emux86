@@ -32,11 +32,21 @@ void run(cpu_t *cpu) {
 	}
 }
 
+char flag_char(int value) {
+	return value ? '1' : '0';
+}
+
 void print_registers(cpu_t *cpu) {
 	for (int i = 0; register_names[i] != NULL; i++) {
 		printf("%s=%08X\n", register_names[i], cpu->reg_array[i]);
 	}
 	printf("EIP=%08X\n", cpu->eip);
+	printf("ELAGS=%08X\n", cpu->eflags);
+	printf("  OF=%c SF=%c ZF=%c CF=%c\n",
+		   flag_char(cpu->eflags & EFLAGS_CF),
+		   flag_char(cpu->eflags & EFLAGS_SF),
+		   flag_char(cpu->eflags & EFLAGS_ZF),
+		   flag_char(cpu->eflags & EFLAGS_OF));
 }
 
 void print_usage() {
