@@ -35,9 +35,7 @@ void set_eflags(cpu_t *cpu, uint32_t flag, int value) {
 	}
 }
 
-void update_eflags_cmp(cpu_t *cpu, uint32_t a, uint32_t b) {
-	uint64_t result = (uint64_t)a - (uint64_t)b;
-
+void update_eflags_sub(cpu_t *cpu, uint32_t a, uint32_t b, uint64_t result) {
 	int sign_a = a >> 31;
 	int sign_b = b >> 31;
 	int sign_result = (result >> 31) & 1;
@@ -46,6 +44,11 @@ void update_eflags_cmp(cpu_t *cpu, uint32_t a, uint32_t b) {
 	set_eflags(cpu, EFLAGS_ZF, result == 0);
 	set_eflags(cpu, EFLAGS_SF, sign_result);
 	set_eflags(cpu, EFLAGS_OF, sign_a != sign_b && sign_a != sign_result);
+}
+
+void update_eflags_cmp(cpu_t *cpu, uint32_t a, uint32_t b) {
+	uint64_t result = (uint64_t)a - (uint64_t)b;
+	update_eflags_sub(cpu, a, b, result);
 }
 
 void inst_mov_r32_imm32(cpu_t *cpu) {
@@ -223,8 +226,10 @@ void code_83_add_rm32_imm8(cpu_t *cpu, modrm_sib_disp_t *msd) {
 void code_83_sub_rm32_imm8(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	uint32_t rm32 = get_rm32(cpu, msd);
 	uint8_t imm8 = get_sign_code8(cpu, 0);
+	uint64_t result = (uint64_t)rm32 - (uint64_t)imm8;
 	cpu->eip++;
-	set_rm32(cpu, msd, rm32 - imm8);
+	set_rm32(cpu, msd, (uint32_t)result);
+	update_eflags_sub(cpu, rm32, (uint32_t)imm8, result);
 }
 
 void code_83_cmp_rm32_imm8(cpu_t *cpu, modrm_sib_disp_t *msd) {
