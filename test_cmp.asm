@@ -6,4 +6,6 @@ start:
     mov     dword [eax], 0x03
     mov     ebx, 0x03
     cmp     ebx, [eax]
+    cmp     [eax], ebx
+    cmp     dword [eax], 0x03
     jmp     0
