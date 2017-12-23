@@ -294,10 +294,45 @@ void inst_leave(cpu_t *cpu) {
 	cpu->eip++;
 }
 
+void set_eflags(cpu_t *cpu, uint32_t flag, int value) {
+	if (value) {
+		cpu->eflags |= flag;
+	} else {
+		cpu->eflags &= ~flag;
+	}
+}
+
+void update_eflags_cmp(cpu_t *cpu, uint32_t a, uint32_t b) {
+	uint64_t result = (uint64_t)a - (uint64_t)b;
+
+	int sign_a = a >> 31;
+	int sign_b = b >> 31;
+	int sign_result = (result >> 31) & 1;
+
+	set_eflags(cpu, EFLAGS_CF, result >> 32);
+	set_eflags(cpu, EFLAGS_ZF, result == 0);
+	set_eflags(cpu, EFLAGS_SF, sign_result);
+
+	set_eflags(cpu, EFLAGS_OF, sign_a != sign_b && sign_a != sign_result);
+}
+
+void inst_cmp_r32_rm32(cpu_t *cpu) {
+	cpu->eip++;
+	modrm_sib_disp_t msd;
+	parse_modrm_sib_disp(cpu, &msd);
+	uint32_t r32 = get_r32(cpu, &msd);
+	uint32_t rm32 = get_rm32(cpu, &msd);
+	update_eflags_cmp(cpu, r32, rm32);
+}
+
 void init_instructions() {
 	memset(instructions, 0, sizeof(instructions));
 
 	instructions[0x01] = inst_add_rm32_r32;
+
+	for (int i = 0; i < 8; i++) {
+		instructions[0x3b + i] = inst_cmp_r32_rm32;
+	}
 
 	for (int i = 0; i < 8; i++) {
 		instructions[0x50 + i] = inst_push_r32;

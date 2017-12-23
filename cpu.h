@@ -6,6 +6,11 @@
 
 #define REGISTER_COUNT 8
 
+#define EFLAGS_CF 1
+#define EFLAGS_ZF (1 << 6)
+#define EFLAGS_SF (1 << 7)
+#define EFLAGS_OF (1 << 11)
+
 extern const char *register_names[];
 
 typedef struct {
