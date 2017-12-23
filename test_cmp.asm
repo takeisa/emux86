@@ -8,4 +8,5 @@ start:
     cmp     ebx, [eax]
     cmp     [eax], ebx
     cmp     dword [eax], 0x03
+    sub     dword [eax], 0x04
     jmp     0
