@@ -259,6 +259,17 @@ void inst_code_83(cpu_t *cpu) {
 	}
 }
 
+void push(cpu_t *cpu, uint32_t value) {
+	cpu->regs.esp -= 4;
+	set_mem32(cpu, cpu->regs.esp, value);
+}
+
+uint32_t pop(cpu_t *cpu) {
+	uint32_t value = get_mem32(cpu, cpu->regs.esp);
+	cpu->regs.esp += 4;
+	return value;
+}
+
 void code_ff_inc_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	uint32_t rm32 = get_rm32(cpu, msd);
 	set_rm32(cpu, msd, ++rm32);
@@ -267,6 +278,11 @@ void code_ff_inc_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
 void code_ff_dec_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	uint32_t rm32 = get_rm32(cpu, msd);
 	set_rm32(cpu, msd, --rm32);
+}
+
+void code_ff_push_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	uint32_t rm32 = get_rm32(cpu, msd);
+	push(cpu, rm32);
 }
 
 void inst_code_ff(cpu_t *cpu) {
@@ -280,20 +296,12 @@ void inst_code_ff(cpu_t *cpu) {
 	case 1:
 		code_ff_dec_rm32(cpu, &msd);
 		break;
+	case 6:
+		code_ff_push_rm32(cpu, &msd);
+		break;
 	default:
 		exit_program("inst_code_ff: not implemented REG=%X", msd.reg);
 	}
-}
-
-void push(cpu_t *cpu, uint32_t value) {
-	cpu->regs.esp -= 4;
-	set_mem32(cpu, cpu->regs.esp, value);
-}
-
-uint32_t pop(cpu_t *cpu) {
-	uint32_t value = get_mem32(cpu, cpu->regs.esp);
-	cpu->regs.esp += 4;
-	return value;
 }
 
 void inst_push_r32(cpu_t *cpu) {
