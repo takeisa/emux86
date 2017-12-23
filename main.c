@@ -43,10 +43,10 @@ void print_registers(cpu_t *cpu) {
 	printf("EIP=%08X\n", cpu->eip);
 	printf("ELAGS=%08X\n", cpu->eflags);
 	printf("  OF=%c SF=%c ZF=%c CF=%c\n",
-		   flag_char(cpu->eflags & EFLAGS_CF),
+		   flag_char(cpu->eflags & EFLAGS_OF),
 		   flag_char(cpu->eflags & EFLAGS_SF),
 		   flag_char(cpu->eflags & EFLAGS_ZF),
-		   flag_char(cpu->eflags & EFLAGS_OF));
+		   flag_char(cpu->eflags & EFLAGS_CF));
 }
 
 void print_usage() {
