@@ -330,9 +330,7 @@ void init_instructions() {
 
 	instructions[0x01] = inst_add_rm32_r32;
 
-	for (int i = 0; i < 8; i++) {
-		instructions[0x3b + i] = inst_cmp_r32_rm32;
-	}
+	instructions[0x3b] = inst_cmp_r32_rm32;
 
 	for (int i = 0; i < 8; i++) {
 		instructions[0x50 + i] = inst_push_r32;
