@@ -1,0 +1,7 @@
+
+crt0.asm,18
+start:start4,45
+
+test_func.c,59
+int add(int a, int b) {add1,0
+int main(void) {main7,58
