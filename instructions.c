@@ -270,6 +270,34 @@ uint32_t pop(cpu_t *cpu) {
 	return value;
 }
 
+void code_f7_neg_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
+	uint32_t rm32 = get_rm32(cpu, msd);
+	int64_t value = (int32_t)rm32;
+	int64_t neg_value = -value;
+	uint32_t result = neg_value;
+	int sign_rm32 = rm32 >> 31;
+	int sign_result = result >> 31;
+	set_rm32(cpu, msd, (uint32_t)neg_value);
+
+	set_eflags(cpu, EFLAGS_CF, result != 0);
+	set_eflags(cpu, EFLAGS_OF, sign_rm32 == sign_result);
+	set_eflags(cpu, EFLAGS_SF, sign_result);
+	set_eflags(cpu, EFLAGS_ZF, result ==  0);
+}
+
+void inst_code_f7(cpu_t *cpu) {
+	cpu->eip++;
+	modrm_sib_disp_t msd;
+	parse_modrm_sib_disp(cpu, &msd);
+	switch (msd.reg) {
+	case 3:
+		code_f7_neg_rm32(cpu, &msd);
+		break;
+	default:
+		exit_program("inst_code_f7: not implemented REG=%X\n", msd.reg);
+	}
+}
+
 void code_ff_inc_rm32(cpu_t *cpu, modrm_sib_disp_t *msd) {
 	uint32_t rm32 = get_rm32(cpu, msd);
 	set_rm32(cpu, msd, ++rm32);
@@ -442,5 +470,6 @@ void init_instructions() {
 	instructions[0xe9] = inst_near_jmp;
 	instructions[0xeb] = inst_short_jmp;
 
+	instructions[0xf7] = inst_code_f7;
 	instructions[0xff] = inst_code_ff;
 }
