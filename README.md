@@ -1,76 +1,97 @@
 # X86 Emulator in C
 
-## Example of compiling and execution
+## Example of Compiling and Excecution
+
+### Compiling (Emulator)
 ```
-$ nasm -g -o hello_world.bin hello_world.asm
-$ ndisasm -b 32 hello_world.bin
-00000000  B829000000        mov eax,0x29
-00000005  C7C104030201      mov ecx,0x1020304
-0000000B  C7C000100000      mov eax,0x1000
-00000011  C70005040302      mov dword [eax],0x2030405
-00000017  C705041000000605  mov dword [dword 0x1004],0x3040506
-         -0403
-00000021  C7400807060504    mov dword [eax+0x8],0x4050607
-00000028  BB00200000        mov ebx,0x2000
-0000002D  C78310F0FFFF0807  mov dword [ebx-0xff0],0x5060708
-         -0605
-00000037  894814            mov [eax+0x14],ecx
-0000003A  8B9300F0FFFF      mov edx,[ebx-0x1000]
-00000040  E9BB83FFFF        jmp dword 0xffff8400
 $ make
 gcc -c main.c -g -O0 -Wall -o main.o
 gcc -c utils.c -g -O0 -Wall -o utils.o
 gcc -c cpu.c -g -O0 -Wall -o cpu.o
 gcc -c instructions.c -g -O0 -Wall -o instructions.o
 gcc main.o utils.o cpu.o instructions.o -o emux86
-$ ./emux86 hello_world.bin
-== Registers ==
-EAX=00001000
-ECX=01020304
-EDX=02030405
-EBX=00002000
-ESP=00007C00
-EBP=00000000
-ESI=00000000
-EDI=00000000
-EIP=00000000
-== Memory==
-1000 05 04 03 02 06 05 04 03
-1008 07 06 05 04 00 00 00 00
-1010 08 07 06 05 04 03 02 01
-1018 00 00 00 00 00 00 00 00
 ```
-## CALL and RET Example
+
+### Sample program
 ```
-$ nasm -g -o test_call_ret.bin test_call_ret.asm
-$ ndisasm -b 32 test_call_ret.bin
-00000000  B804030201        mov eax,0x1020304
-00000005  BB05040302        mov ebx,0x2030405
-0000000A  E805000000        call dword 0x14
-0000000F  E9EC83FFFF        jmp dword 0xffff8400
-00000014  89C1              mov ecx,eax
-00000016  01D9              add ecx,ebx
-00000018  C3                ret
-$ ./emux86 test_call_ret.bin
+$ cd test/c_funcs/c_func_4
+$ cat crt0.asm
+    BITS 32
+    extern main
+    global start
+start:
+    call main
+    jmp 0
+
+$ cat test_func.c
+int my_abs(int value) {
+	if (value >= 0) {
+		return value;
+	} else {
+		return -value;
+	}
+}
+
+int main(void) {
+	int value = -3;
+	return my_abs(value);
+}
+```
+
+### Compling (C sample code)
+```
+$ LANG=C gcc -O0 -m32 -nostdlib -fno-pie -fno-asynchronous-unwind-tables -g -fno-stack-protector -c test_func.c
+$ nasm -f elf test/c_funcs/c_func_4/crt0.asm
+$ ld -m elf_i386 --entry=start --oformat=binary -Ttext 0x7c00 -o test_func.bin crt0.o test_func.o
+$ ndisasm -b 32 test_func.bin
+00000000  E81A000000        call dword 0x1f
+00000005  E9F683FFFF        jmp dword 0xffff8400
+0000000A  55                push ebp
+0000000B  89E5              mov ebp,esp
+0000000D  837D0800          cmp dword [ebp+0x8],byte +0x0
+00000011  7805              js 0x18
+00000013  8B4508            mov eax,[ebp+0x8]
+00000016  EB05              jmp short 0x1d
+00000018  8B4508            mov eax,[ebp+0x8]
+0000001B  F7D8              neg eax
+0000001D  5D                pop ebp
+0000001E  C3                ret
+0000001F  55                push ebp
+00000020  89E5              mov ebp,esp
+00000022  83EC10            sub esp,byte +0x10
+00000025  C745FCFDFFFFFF    mov dword [ebp-0x4],0xfffffffd
+0000002C  FF75FC            push dword [ebp-0x4]
+0000002F  E8D6FFFFFF        call dword 0xa
+00000034  83C404            add esp,byte +0x4
+00000037  C9                leave
+00000038  C3                ret
+```
+
+### Execution
+```
+$ cd ../../..
+$ ./emux86 test/c_funcs/c_func_4/test_func.bin
 End of program
 == Registers ==
-EAX=01020304
-ECX=03050709
+EAX=00000003
+ECX=00000000
 EDX=00000000
-EBX=02030405
+EBX=00000000
 ESP=00007C00
 EBP=00000000
 ESI=00000000
 EDI=00000000
 EIP=00000000
+ELAGS=00000001
+  OF=0 SF=0 ZF=0 CF=1
 == Memory==
 1000 00 00 00 00 00 00 00 00
 1008 00 00 00 00 00 00 00 00
 1010 00 00 00 00 00 00 00 00
 1018 00 00 00 00 00 00 00 00
 == Memory(Stack)==
-7BE0 00 00 00 00 00 00 00 00
+7BE0 34 7C 00 00 FD FF FF FF
 7BE8 00 00 00 00 00 00 00 00
 7BF0 00 00 00 00 00 00 00 00
-7BF8 00 00 00 00 0F 7C 00 00
+7BF8 00 00 00 00 05 7C 00 00
 ```
